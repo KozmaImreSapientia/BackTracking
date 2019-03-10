@@ -56,6 +56,7 @@ class Backtrack:  # todo testing with Imre
 
 # __________________ BACKTRACKING __________________
 def just_backtracking (backtrack, board, assignments=0):
+    print("Backtrack...")
     if len(board) == len(backtrack.variables):
         return assignments, board
 
@@ -65,7 +66,6 @@ def just_backtracking (backtrack, board, assignments=0):
     for value in backtrack.possible_values(var):
         # if the constraints are satisfied backtrack
         if backtrack.number_of_conflicting_vars(var, value, board) == 0:
-            # backtrack.assign(var, value, board)
             board[var] = value
             assignments += 1
             assignments, result = just_backtracking(backtrack, board, assignments)
@@ -77,8 +77,8 @@ def just_backtracking (backtrack, board, assignments=0):
     return assignments, None
 
 
-def advanced_backtracking_with_ac3 (backtrack, board, assignments=0):
-    # print("Backtrack...")
+def advanced_backtracking_with_forward_checking (backtrack, board, assignments=0):
+    print("Backtrack...")
     if len(board) == len(backtrack.variables):
         return assignments, board
     var = mvr(board, backtrack)
@@ -88,9 +88,9 @@ def advanced_backtracking_with_ac3 (backtrack, board, assignments=0):
             board[var] = value
             removals = backtrack.suppose(var, value)
 
-            if Ac3Algorithm(backtrack, None, removals):
+            if forward_checking(backtrack, var, value, board, removals):  # ____________
                 assignments += 1
-                assignments, result = advanced_backtracking_with_ac3(backtrack, board, assignments)
+                assignments, result = advanced_backtracking_with_forward_checking(backtrack, board, assignments)
                 if result is not None:
                     return assignments, result
 
@@ -101,20 +101,49 @@ def advanced_backtracking_with_ac3 (backtrack, board, assignments=0):
     return assignments, None
 
 
+def advanced_backtracking_with_ac3 (backtrack, board, assignments=0):
+    # print("Backtrack...")
+    if len(board) == len(backtrack.variables):
+        return assignments, board
+
+    # taking the variable with least remaining possible values
+    var = mvr(board, backtrack)
+    # looping through its domain
+    for value in backtrack.possible_values(var):
+        # if the constraints are satisfied backtrack
+        if backtrack.number_of_conflicting_vars(var, value, board) == 0:
+            board[var] = value
+            removals = backtrack.suppose(var, value)
+
+            # if arc consistency is satisfied
+            if Ac3Algorithm(backtrack, None, removals):
+                assignments += 1
+                assignments, result = advanced_backtracking_with_ac3(backtrack, board, assignments)
+                if result is not None:
+                    return assignments, result
+
+            # it didn't lead to a result so remove supposition
+            backtrack.restore(removals)
+
+    if var in board:
+        del board[var]
+    return assignments, None
+
+
 # __________ Optimizing algorithms ____________
 # Minimum Values Remaining
 def mvr (board, backtrack):
     result = []
-    for var in backtrack.variables: #taking the variables
+    for var in backtrack.variables: # taking the variables
         if var not in board:
             result.append(var)
 
-    #key is the criterial for the min() which use the size of domainium
-    #the lambda count the size of the domainium for every variable
+    # key is the criteria for the min() which use the size of domain
+    # the lambda count the size of the domain for every variable
     return min(result, key=lambda v: number_of_values(backtrack, v, board))
 
 
-#counting the legal values of the domenium
+# counting the legal values of the domain
 def number_of_values (Backtrack, var, board):
     if Backtrack.curr_domains:
         return len(Backtrack.curr_domains[var])
@@ -151,15 +180,8 @@ def reconsider (backtrack, Xi, Xj, removals):
     return reconsidered
 # ac-3 ------------------------------------------!
 
-# Forward checking
-def support_pruning(self):
-    """
-    Make sure we can remove values from domains.
-    (We want to pay for this only if we use it.)
-    """
-    if self.curr_domains is None:
-        self.curr_domains = {v: list(self.domains[v]) for v in self.variables}
 
+# Forward checking
 def forward_checking(backtrack, var, value, assignment, removals):
     """
     Remove values from neighbor which are inconsistent with var=value.
@@ -170,15 +192,16 @@ def forward_checking(backtrack, var, value, assignment, removals):
         removals: ( ((<value>) , <var>) , ... )
         csp: Backtrack
     """
-    backtrack.support_pruning()
+    backtrack.init_curr_domains()
     for B in backtrack.neighbors[var]:
         if B not in assignment:
             for b in backtrack.curr_domains[B][:]:
                 if not backtrack.constraints(var, value, B, b):
-                    backtrack.prune(B, b, removals)
+                    backtrack.remove_from_curr_domain(B, b, removals)
             if not backtrack.curr_domains[B]:
                 return False
     return True
+
 
 # ________ Helper functions __________
 def first_unassigned_variable (board, backtrack):
@@ -186,6 +209,7 @@ def first_unassigned_variable (board, backtrack):
     for var in backtrack.variables:
         if var not in board:
             return var
+
 
 # Count the number of items in sequence
 def count (seq):

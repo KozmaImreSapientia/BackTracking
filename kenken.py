@@ -121,6 +121,7 @@ def print_operand_groups(operand_groups):
         print("|")
         count = count + 1
 
+
 ########################################################################
 def is_different_row_or_column(xy1, xy2):
     """
@@ -128,6 +129,7 @@ def is_different_row_or_column(xy1, xy2):
     
     """
     return (xy1[0] == xy2[0]) != (xy1[1] == xy2[1])
+
 
 def is_conflicting(A, a, B, b):
     """
@@ -145,6 +147,7 @@ def is_conflicting(A, a, B, b):
 
     return False
 
+
 def is_satisfies(values, operation, target):
     """
     Checks if the permutation of a value is equal to the specified target.
@@ -155,6 +158,7 @@ def is_satisfies(values, operation, target):
             return True
 
     return False
+
 
 def generate_domains(size, operand_groups):
     """
@@ -172,6 +176,7 @@ def generate_domains(size, operand_groups):
         domains[cells] = list(filter(qualifies, domains[cells]))
     # finally  return the domains
     return domains
+
 
 def generate_neighbors(operand_groups):
     """   
@@ -192,6 +197,7 @@ def generate_neighbors(operand_groups):
 
 
 ########################################################################
+
 
 class Kenken(backtracking.Backtrack):
     # Class initialization
@@ -226,9 +232,10 @@ class Kenken(backtracking.Backtrack):
         # printUnsolvedBoard(self.meta, size)
         boardprinter.printSolvedBoard(self.meta, assignment, size)
 
+
 if __name__ == "__main__":
-    size = 6
-    algorithm = 1
+    size = 8
+    algorithm = 2
 
     if len(sys.argv) == 3:
         # size of the problem
@@ -250,13 +257,12 @@ if __name__ == "__main__":
 
     ken = Kenken(size, operand_groups)
 
-
     if algorithm == 1:
         # backtracking
         assignments, board = backtracking.just_backtracking(ken, {})
     elif algorithm == 2:
         # backtracking + mrv + fwcheck
-        assignments, board = 0,0 # backtracking.advanced_backtracking_with_forward_checking (ken, {})
+        assignments, board = backtracking.advanced_backtracking_with_forward_checking (ken, {})
     elif algorithm == 3:
         # backtracking + mrv + AC3
         assignments, board = backtracking.advanced_backtracking_with_ac3(ken, {})
