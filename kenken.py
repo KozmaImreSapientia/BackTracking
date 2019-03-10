@@ -326,7 +326,7 @@ class Kenken(backtracking.Backtrack):
 
 if __name__ == "__main__":
     size = 6
-    algorithm = 1
+    algorithm = 3
 
     if len(sys.argv) == 3:
         # size of the problem
@@ -356,7 +356,7 @@ if __name__ == "__main__":
         assignments, board = 0, 0
     elif algorithm == 3:
         # backtracking + mrv + AC3
-        assignments, board = 0, 0
+        assignments, board = backtracking.Ac3Algorithm(ken, {})
 
     # ken.display(board)
 
