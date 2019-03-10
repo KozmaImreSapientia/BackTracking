@@ -1,3 +1,7 @@
+# bactracking function
+
+
+
 """
 A class that we introduced to store each backtracking branch's associated copy of the data (variables, domains, ...)
 The data members are the variables of the KenKen board, the domains corresponding to each variable, each variables
@@ -50,6 +54,30 @@ class Backtrack:  # todo testing with Imre
             self.curr_domains[B].append(b)
 
 
+# __________________ BACKTRACKING __________________
+def just_backtracking (backtrack, board, assignments=0):
+    print("Backtrack...")
+    if len(board) == len(backtrack.variables):
+        return assignments, board
+
+    # taking first variable
+    var = first_unassigned_variable(board, backtrack)
+    # looping through its domain
+    for value in backtrack.possible_values(var):
+        # if the constraints are satisfied backtrack
+        if backtrack.number_of_conflicting_vars(var, value, board) == 0:
+            # backtrack.assign(var, value, board)
+            board[var] = value
+            assignments += 1
+            assignments, result = just_backtracking(backtrack, board, assignments)
+            if result is not None:
+                return assignments, result
+
+    if var in board:
+        del board[var]
+    return assignments, None
+
+
 # __________ Optimizing algorithms ____________
 
 # AC3
@@ -58,6 +86,9 @@ class Backtrack:  # todo testing with Imre
 
 
 # ________ Helper functions __________
+def first_unassigned_variable (board, backtrack):
+    """The default variable order."""
+    return ([var for var in backtrack.variables if var not in board])[0]
 
 
 # Count the number of items in sequence
