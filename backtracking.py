@@ -56,7 +56,6 @@ class Backtrack:  # todo testing with Imre
 
 # __________________ BACKTRACKING __________________
 def just_backtracking (backtrack, board, assignments=0):
-    print("Backtrack...")
     if len(board) == len(backtrack.variables):
         return assignments, board
 
