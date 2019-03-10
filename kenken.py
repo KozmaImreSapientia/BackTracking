@@ -5,7 +5,9 @@ import backtracking
 from itertools import permutations, product
 from functools import reduce
 
+
 import backtracking
+import boardprinter
 
 
 def operation(operator):
@@ -293,6 +295,8 @@ def generate_neighbors(operand_groups):
     return neighbors
 
 
+########################################################################
+
 class Kenken(backtracking.Backtrack):
     # Class initialization
     def __init__(self, size, operand_groups):
@@ -315,7 +319,6 @@ class Kenken(backtracking.Backtrack):
             self.meta[cells] = (operator, target)
             self.padding = max(self.padding, len(str(target)))
 
-
     def constraint(self, A, a, B, b):
           
             # Adds the check at every call
@@ -323,10 +326,13 @@ class Kenken(backtracking.Backtrack):
 
             return A == B or not is_conflicting(A, a, B, b)
 
+    def display(self, assignment):
+        # printUnsolvedBoard(self.meta, size)
+        printSolvedBoard(self.meta, assignment, size)
 
 if __name__ == "__main__":
     size = 6
-    algorithm = 3
+    algorithm = 1
 
     if len(sys.argv) == 3:
         # size of the problem
@@ -348,6 +354,7 @@ if __name__ == "__main__":
 
     ken = Kenken(size, operand_groups)
 
+
     if algorithm == 1:
         # backtracing
         assignments, board = backtracking.just_backtracking(ken, {})
@@ -356,7 +363,7 @@ if __name__ == "__main__":
         assignments, board = 0, 0
     elif algorithm == 3:
         # backtracking + mrv + AC3
-        assignments, board = backtracking.Ac3Algorithm(ken, {})
+        assignments, board = 0,0 # backtracking.Ac3Algorithm(ken, {})
 
     # ken.display(board)
 
