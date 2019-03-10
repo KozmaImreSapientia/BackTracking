@@ -1,6 +1,9 @@
 import sys
 import random
 import functools
+import backtracking
+from itertools import permutations, product
+from functools import reduce
 
 def operation(operator):
     #converting the 'operator' to a real operation
@@ -111,6 +114,106 @@ def print_operand_groups(operand_groups):
         print_operand_group(item, "| ", False)
         print("|")
         count = count + 1
+
+########################################################################
+def is_different_row_or_column(xy1, xy2):
+    """
+    Checks if they  are in the same row / column
+    
+    """
+    return (xy1[0] == xy2[0]) != (xy1[1] == xy2[1])
+
+def is_conflicting(A, a, B, b):
+    """
+   Checks if they are in conflict
+    """
+    for i in range(len(A)):
+        for j in range(len(B)):
+            mA = A[i]
+            mB = B[j]
+
+            ma = a[i]
+            mb = b[j]
+            if is_different_row_or_column(mA, mB) and ma == mb:
+                return True
+
+    return False
+
+def is_satisfies(values, operation, target):
+    """
+    Checks if the permutation of a value is equal to the specified target.
+    Calls the permutation form python library
+    """
+    for p in permutations(values):
+        if reduce(operation, p) == target:
+            return True
+
+    return False
+
+def generate_domains(size, operand_groups):
+    """
+       Generates the domains
+    """
+    domains = {}
+    # iterate over the groups
+    for operand_group in operand_groups:
+        cells, operator, target = operand_group
+
+        domains[cells] = list(product(range(1, size + 1), repeat=len(cells)))
+
+        qualifies = lambda values: not is_conflicting(cells, values, cells, values) and is_satisfies(values, operation(operator), target)
+
+        domains[cells] = list(filter(qualifies, domains[cells]))
+    # finally  return the domains
+    return domains
+
+def generate_neighbors(operand_groups):
+    """   
+    Adding the neighbours  
+    """
+    neighbors = {}
+    for cells, _, _ in operand_groups:
+        neighbors[cells] = []
+
+    for A, _, _ in operand_groups:
+        for B, _, _ in operand_groups:
+            if A != B and B not in neighbors[A]:
+                if is_conflicting(A, [-1] * len(A), B, [-1] * len(B)):
+                    neighbors[A].append(B)
+                    neighbors[B].append(A)
+
+    return neighbors
+
+
+class Kenken(backtracking.Backtrack):
+    # Class initialization
+    def __init__(self, size, operand_groups):
+        variables = [cells for cells, _, _ in operand_groups]
+        domains = generate_domains(size, operand_groups)
+        neighbors = generate_neighbors(operand_groups)
+
+        backtracking.Backtrack.__init__(self, variables, domains, neighbors, self.constraint)
+
+        self.size = size
+
+        # Sets the checks
+        self.checks = 0
+
+        # For displaying
+        self.padding = 0
+
+        self.meta = {}
+        for cells, operator, target in operand_groups:
+            self.meta[cells] = (operator, target)
+            self.padding = max(self.padding, len(str(target)))
+
+
+    def constraint(self, A, a, B, b):
+          
+            # Adds the check at every call
+            self.checks += 1
+
+            return A == B or not is_conflicting(A, a, B, b)
 
 
 if __name__ == "__main__":
