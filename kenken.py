@@ -33,9 +33,10 @@ def are_neighbours(point1, point2):
 
 #generating a board
 def generate(size):
+    #creating a size x size board
     board = [[((i + j) % size) + 1 for i in range(size)] for j in range(size)]
 
-    # Shuffle the rows and columns
+    #shuffle the rows and columns
     for _ in range(size):
         random.shuffle(board)
 

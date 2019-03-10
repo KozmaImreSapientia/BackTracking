@@ -80,6 +80,25 @@ def just_backtracking (backtrack, board, assignments=0):
 
 # __________ Optimizing algorithms ____________
 
+def mvr (board, backtrack):
+    # key the ordering criterion, int this case this is the size of the domenium
+    result = []
+    for var in backtrack.variables:
+        if var not in board:
+            result.append(var)
+
+    #key is the criterial for the min() which use the size of domainium
+    return min(result, key=lambda v: number_of_values(backtrack, v, board))
+
+#counting the legal values of the domenium
+def number_of_values (Backtrack, var, board):
+    if Backtrack.curr_domains:
+        return len(Backtrack.curr_domains[var])
+    else:
+        return count(Backtrack.number_of_conflicting_vars(var, val, board) == 0
+                     for val in Backtrack.domains[var])
+
+
 # AC3
 
 # Forward checking
@@ -88,8 +107,9 @@ def just_backtracking (backtrack, board, assignments=0):
 # ________ Helper functions __________
 def first_unassigned_variable (board, backtrack):
     """The default variable order."""
-    return ([var for var in backtrack.variables if var not in board])[0]
-
+    for var in backtrack.variables:
+        if var not in board:
+            return var
 
 # Count the number of items in sequence
 def count (seq):
