@@ -252,12 +252,9 @@ if __name__ == "__main__":
         # backtracking
         assignments, board = backtracking.just_backtracking(ken, {})
     elif algorithm == 2:
-        # fwcheck
-        assignments, board = backtracking.forward_checking (ken, {})
-    elif algorithm == 3:
         # backtracking + mrv + fwcheck
         assignments, board = 0,0 # backtracking.advanced_backtracking_with_forward_checking (ken, {})
-    elif algorithm == 4:
+    elif algorithm == 3:
         # backtracking + mrv + AC3
         assignments, board = backtracking.advanced_backtracking_with_ac3(ken, {})
 
