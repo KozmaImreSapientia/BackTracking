@@ -84,7 +84,7 @@ def printBoardIds(cellIds, size):
         print()
     print()
 
-def printUnsolvedBoard(meta, size):
+def printUnsolvedBoard(meta, assignment, size):
     '''
     Prints the unsolved Board, ready to solve for human.
     '''

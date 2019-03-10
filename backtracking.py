@@ -78,7 +78,7 @@ def just_backtracking (backtrack, board, assignments=0):
 
 
 def advanced_backtracking_with_ac3 (backtrack, board, assignments=0):
-    print("Backtrack...")
+    # print("Backtrack...")
     if len(board) == len(backtrack.variables):
         return assignments, board
     var = mvr(board, backtrack)
@@ -152,7 +152,33 @@ def reconsider (backtrack, Xi, Xj, removals):
 # ac-3 ------------------------------------------!
 
 # Forward checking
+def support_pruning(self):
+    """
+    Make sure we can remove values from domains.
+    (We want to pay for this only if we use it.)
+    """
+    if self.curr_domains is None:
+        self.curr_domains = {v: list(self.domains[v]) for v in self.variables}
 
+def forward_checking(backtrack, var, value, assignment, removals):
+    """
+    Remove values from neighbor which are inconsistent with var=value.
+    Input:
+        value: ((x1,y1), (x2,y2), (x3,y3), ... )   - Group's cell coordinates (points) list.
+        var: (v1, v2, v3, ... )    - values corresponding for previous 'value's list.
+        assignment: ((<value>) : <var>)
+        removals: ( ((<value>) , <var>) , ... )
+        csp: Backtrack
+    """
+    backtrack.support_pruning()
+    for B in backtrack.neighbors[var]:
+        if B not in assignment:
+            for b in backtrack.curr_domains[B][:]:
+                if not backtrack.constraints(var, value, B, b):
+                    backtrack.prune(B, b, removals)
+            if not backtrack.curr_domains[B]:
+                return False
+    return True
 
 # ________ Helper functions __________
 def first_unassigned_variable (board, backtrack):
