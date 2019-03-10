@@ -81,13 +81,13 @@ def just_backtracking (backtrack, board, assignments=0):
 # __________ Optimizing algorithms ____________
 
 def mvr (board, backtrack):
-    # key the ordering criterion, int this case this is the size of the domenium
     result = []
-    for var in backtrack.variables:
+    for var in backtrack.variables: #taking the variables
         if var not in board:
             result.append(var)
 
     #key is the criterial for the min() which use the size of domainium
+    #the lambda count the size of the domainium for every variable
     return min(result, key=lambda v: number_of_values(backtrack, v, board))
 
 #counting the legal values of the domenium
@@ -100,6 +100,33 @@ def number_of_values (Backtrack, var, board):
 
 
 # AC3
+# AC3 ----------------------------------------------------------
+def Ac3Algorithm (backtrack, queue=None, removals=None):
+
+    if queue is None:
+        queue = [(Xi, Xk) for Xi in backtrack.variables for Xk in backtrack.neighbors[Xi]]
+    backtrack.init_curr_domains()
+    while queue:
+        (Xi, Xj) = queue.pop()
+        if reconsider(backtrack, Xi, Xj, removals):
+            if not backtrack.curr_domains[Xi]:
+                return False
+            for Xk in backtrack.neighbors[Xi]:
+                if Xk != Xj:
+                    queue.append((Xk, Xi))
+    return True
+
+
+def reconsider (backtrack, Xi, Xj, removals):
+
+    reconsidered = False
+    for x in backtrack.curr_domains[Xi][:]:
+        # If Xi=x conflicts with Xj=y for every possible y, eliminate Xi=x
+        if all(not backtrack.constraints(Xi, x, Xj, y) for y in backtrack.curr_domains[Xj]):
+            backtrack.remove_from_curr_domain(Xi, x, removals)
+            reconsidered = True
+    return reconsidered
+# ac-3 ------------------------------------------!
 
 # Forward checking
 
