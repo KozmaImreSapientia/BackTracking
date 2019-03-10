@@ -246,22 +246,25 @@ if __name__ == "__main__":
     #    [ ( ((<x>,<y>),(<x>,<y>), ... ), '<operator>', <target> ) , ... ]
     size, operand_groups = generate(size)
 
-    print_operand_groups(operand_groups)
+    # print_operand_groups(operand_groups)
 
     ken = Kenken(size, operand_groups)
 
 
     if algorithm == 1:
-        # backtracing
+        # backtracking
         assignments, board = backtracking.just_backtracking(ken, {})
     elif algorithm == 2:
-        # backtracing + mrv + fwcheck
-        assignments, board = 0, 0
+        # fwcheck
+        assignments, board = backtracking.forward_checking (ken, {})
     elif algorithm == 3:
+        # backtracking + mrv + fwcheck
+        assignments, board = 0,0 # backtracking.advanced_backtracking_with_forward_checking (ken, {})
+    elif algorithm == 4:
         # backtracking + mrv + AC3
-        assignments, board = 0,0 # backtracking.Ac3Algorithm(ken, {})
+        assignments, board = backtracking.advanced_backtracking_with_ac3(ken, {})
 
-    # ken.display(board)
+    ken.display(board)
 
     print("Constraint checks:", ken.checks)
     print("Assignments:", assignments)
