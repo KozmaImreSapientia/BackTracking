@@ -225,7 +225,7 @@ class Kenken(backtracking.Backtrack):
 
 if __name__ == "__main__":
     size = 6
-    algorithm = 1
+    algorithm = 3
 
     if len(sys.argv) == 3:
         # size of the problem
@@ -249,16 +249,16 @@ if __name__ == "__main__":
 
 
     if algorithm == 1:
-        # backtracing
+        # backtracking
         assignments, board = backtracking.just_backtracking(ken, {})
     elif algorithm == 2:
-        # backtracing + mrv + fwcheck
-        assignments, board = 0, 0
+        # backtracking + mrv + fwcheck
+        assignments, board = 0, 0   # backtracking.advanced_backtracking_with_forward_checking (ken, {})
     elif algorithm == 3:
         # backtracking + mrv + AC3
-        assignments, board = 0,0 # backtracking.Ac3Algorithm(ken, {})
+        assignments, board = backtracking.advanced_backtracking_with_ac3(ken, {})
 
-    # ken.display(board)
+    ken.display(board)
 
     print("Constraint checks:", ken.checks)
     print("Assignments:", assignments)
