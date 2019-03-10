@@ -48,15 +48,17 @@ def generate(size):
 
     board = {(j + 1, i + 1): board[i][j] for i in range(size) for j in range(size)}
 
+    #the cells without the index of group that we want to put into groups later
     uncaged = sorted(board.keys(), key=lambda var: var[1])
 
     operand_groups = []
+    #putting the operands, variables and targets into operand_groups
     while uncaged:
 
         operand_groups.append([])
 
         csize = random.randint(1, 4)
-
+        #taking the first element from the uncaged list, then put it to the operand_group
         cell = uncaged[0]
 
         uncaged.remove(cell)
@@ -64,9 +66,9 @@ def generate(size):
         operand_groups[-1].append(cell)
 
         for _ in range(csize - 1):
-
+            #adjs contains the neighbours of the choosen cell
             adjs = [other for other in uncaged if are_neighbours(cell, other)]
-
+            #one of the adjs join for the group of the cell
             cell = random.choice(adjs) if adjs else None
 
             if not cell:
@@ -77,6 +79,7 @@ def generate(size):
             operand_groups[-1].append(cell)
 
         csize = len(operand_groups[-1])
+        #check the size of the game and give the range of the operations
         if csize == 1:
             cell = operand_groups[-1][0]
             operand_groups[-1] = ((cell,), '.', board[cell])
@@ -89,7 +92,7 @@ def generate(size):
                 operator = "-"  # choice("+-*")
         else:
             operator = random.choice("+*")
-
+        #generating the target from the values and the random operator
         target = functools.reduce(operation(operator), [board[cell] for cell in operand_groups[-1]])
 
         operand_groups[-1] = (tuple(operand_groups[-1]), operator, int(target))
